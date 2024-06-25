@@ -26,7 +26,7 @@ const App = () => {
 					'--bg-color': mainState.backgroundColor.value,
 				} as CSSProperties
 			}>
-			<ArticleParamsForm />
+			<ArticleParamsForm mainState={mainState} setMainState={setMainState} />
 			<Article />
 		</div>
 	);
