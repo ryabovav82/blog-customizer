@@ -1,25 +1,27 @@
 import { ArrowButton } from 'components/arrow-button';
 import { Button } from 'components/button';
-import { Text } from 'components/text';
 
 import styles from './ArticleParamsForm.module.scss';
+import { Select } from 'components/select';
 import {
 	ArticleStateType,
-	fontFamilyOptions,
-	fontSizeOptions,
-	fontColors,
 	backgroundColors,
 	contentWidthArr,
+	fontColors,
+	fontFamilyOptions,
+	fontSizeOptions,
 } from 'src/constants/articleProps';
-import { Select } from 'components/select';
-import { useState } from 'react';
 import { RadioGroup } from 'components/radio-group';
+import { Separator } from 'components/separator';
+import { FormEvent, useRef, useState } from 'react';
+import { Text } from 'components/text';
+import clsx from 'clsx';
+import { useOutsideClickClose } from 'components/select/hooks/useOutsideClickClose';
 
 interface ArticleParamsFormProps {
 	mainState: ArticleStateType;
 	setMainState: (param: ArticleStateType) => void;
 }
-
 export const ArticleParamsForm = ({
 	mainState,
 	setMainState,
@@ -41,16 +43,42 @@ export const ArticleParamsForm = ({
 	};
 
 	const [formState, setFormState] = useState(formStateData);
+	const [isOpen, setIsOpen] = useState(false);
+
+	const rootRef = useRef(null);
+	const formRef = useRef(null);
 
 	function resetState() {
 		setFormState(formStateDataReset);
 	}
 
+	const handlerSubmit = (event: FormEvent) => {
+		event.preventDefault();
+		setMainState({
+			...formState,
+			fontFamilyOption: formState.fontFamily,
+			fontSizeOption: formState.fontSize,
+			fontColor: formState.fontColor,
+			backgroundColor: formState.backgroundColor,
+			contentWidth: formState.contentWidth,
+		});
+		setIsOpen(!isOpen);
+	};
+
+	useOutsideClickClose({
+		isOpen,
+		rootRef,
+		onClose: () => setIsOpen(false),
+		onChange: setIsOpen,
+	});
+
 	return (
 		<>
-			<ArrowButton />
-			<aside className={styles.container}>
-				<form className={styles.form}>
+			<ArrowButton onClick={setIsOpen} isOpen={isOpen} />
+			<aside
+				className={clsx(styles.container, isOpen && styles.container_open)}
+				ref={rootRef}>
+				<form className={styles.form} onSubmit={handlerSubmit} ref={formRef}>
 					<Text as={'h2'} size={31} weight={800} uppercase={true}>
 						Задайте параметры
 					</Text>
@@ -58,7 +86,7 @@ export const ArticleParamsForm = ({
 						onChange={(selected) => {
 							setFormState({
 								...formState,
-								fontColor: selected,
+								fontFamily: selected,
 							});
 						}}
 						selected={formState.fontFamily}
@@ -88,6 +116,7 @@ export const ArticleParamsForm = ({
 						options={fontColors}
 						title='Цвет шрифта'
 					/>
+					<Separator />
 					<Select
 						onChange={(selected) => {
 							setFormState({
@@ -110,6 +139,7 @@ export const ArticleParamsForm = ({
 						options={contentWidthArr}
 						title='Ширина контента'
 					/>
+
 					<div className={styles.bottomContainer}>
 						<Button onClick={resetState} title='Сбросить' type='reset' />
 						<Button title='Применить' type='submit' />
