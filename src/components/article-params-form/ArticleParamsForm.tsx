@@ -7,6 +7,7 @@ import {
 	ArticleStateType,
 	backgroundColors,
 	contentWidthArr,
+	defaultArticleState,
 	fontColors,
 	fontFamilyOptions,
 	fontSizeOptions,
@@ -22,61 +23,42 @@ interface ArticleParamsFormProps {
 	mainState: ArticleStateType;
 	setMainState: (param: ArticleStateType) => void;
 }
-export const ArticleParamsForm = ({
-	mainState,
-	setMainState,
-}: ArticleParamsFormProps) => {
-	const formStateData = {
-		fontFamily: mainState.fontFamilyOption,
-		fontSize: mainState.fontSizeOption,
-		fontColor: mainState.fontColor,
-		backgroundColor: mainState.backgroundColor,
-		contentWidth: mainState.contentWidth,
-	};
-
-	const formStateDataReset = {
-		fontFamily: fontFamilyOptions[0],
-		fontSize: fontSizeOptions[0],
-		fontColor: fontColors[0],
-		backgroundColor: backgroundColors[0],
-		contentWidth: contentWidthArr[0],
-	};
-
-	const [formState, setFormState] = useState(formStateData);
-	const [isOpen, setIsOpen] = useState(false);
+export const ArticleParamsForm = ({ setMainState }: ArticleParamsFormProps) => {
+	const [formState, setFormState] = useState(defaultArticleState);
+	const [isMenuOpen, setIsMenuOpen] = useState(false);
 
 	const rootRef = useRef(null);
 	const formRef = useRef(null);
 
 	function resetState() {
-		setFormState(formStateDataReset);
+		setFormState(defaultArticleState);
 	}
 
 	const handlerSubmit = (event: FormEvent) => {
 		event.preventDefault();
 		setMainState({
 			...formState,
-			fontFamilyOption: formState.fontFamily,
-			fontSizeOption: formState.fontSize,
+			fontFamilyOption: formState.fontFamilyOption,
+			fontSizeOption: formState.fontSizeOption,
 			fontColor: formState.fontColor,
 			backgroundColor: formState.backgroundColor,
 			contentWidth: formState.contentWidth,
 		});
-		setIsOpen(!isOpen);
+		setIsMenuOpen(!isMenuOpen);
 	};
 
 	useOutsideClickClose({
-		isOpen,
+		isOpen: isMenuOpen,
 		rootRef,
-		onClose: () => setIsOpen(false),
-		onChange: setIsOpen,
+		onClose: () => setIsMenuOpen(false),
+		onChange: setIsMenuOpen,
 	});
 
 	return (
 		<>
-			<ArrowButton onClick={setIsOpen} isOpen={isOpen} />
+			<ArrowButton onClick={setIsMenuOpen} isOpen={isMenuOpen} />
 			<aside
-				className={clsx(styles.container, isOpen && styles.container_open)}
+				className={clsx(styles.container, isMenuOpen && styles.container_open)}
 				ref={rootRef}>
 				<form className={styles.form} onSubmit={handlerSubmit} ref={formRef}>
 					<Text as={'h2'} size={31} weight={800} uppercase={true}>
@@ -86,10 +68,10 @@ export const ArticleParamsForm = ({
 						onChange={(selected) => {
 							setFormState({
 								...formState,
-								fontFamily: selected,
+								fontFamilyOption: selected,
 							});
 						}}
-						selected={formState.fontFamily}
+						selected={formState.fontFamilyOption}
 						options={fontFamilyOptions}
 						title='Шрифт'
 					/>
@@ -97,12 +79,12 @@ export const ArticleParamsForm = ({
 						onChange={(changed) => {
 							setFormState({
 								...formState,
-								fontSize: changed,
+								fontSizeOption: changed,
 							});
 						}}
 						name='Размер шрифта'
 						options={fontSizeOptions}
-						selected={formState.fontSize}
+						selected={formState.fontSizeOption}
 						title='Размер шрифта'
 					/>
 					<Select
